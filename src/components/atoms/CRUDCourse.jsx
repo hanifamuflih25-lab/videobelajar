@@ -19,9 +19,7 @@ function CourseCRUD() {
   const [profileImg, setProfileImg] = useState("");
   const [editingId, setEditingId] = useState(null);
 
-  // ======================
-  // READ (AXIOS)
-  // ======================
+ 
   const fetchCourses = async () => {
     try {
       const data = await getCourses();
@@ -35,9 +33,6 @@ function CourseCRUD() {
     fetchCourses();
   }, []);
 
-  // ======================
-  // IMAGE COMPRESS (UNCHANGED)
-  // ======================
   const compressImage = (file, callback) => {
     const reader = new FileReader();
 
@@ -78,9 +73,7 @@ function CourseCRUD() {
     compressImage(file, setProfileImg);
   };
 
-  // ======================
-  // CREATE / UPDATE (AXIOS)
-  // ======================
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -117,9 +110,7 @@ function CourseCRUD() {
     }
   };
 
-  // ======================
-  // EDIT
-  // ======================
+
   const handleEdit = (course) => {
     setTitle(course.title);
     setTeacher(course.teacher);
@@ -131,9 +122,6 @@ function CourseCRUD() {
     setEditingId(course.id);
   };
 
-  // ======================
-  // DELETE (AXIOS)
-  // ======================
   const handleDelete = async (id) => {
     try {
       await deleteCourse(id);
