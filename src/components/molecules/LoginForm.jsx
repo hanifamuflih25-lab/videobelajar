@@ -1,32 +1,57 @@
+import { useState } from "react";
 import InputField from "../atoms/inputField";
 import Button from "../atoms/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LogoImage from "../../assets/images/Vector.png";
 import LogoImages from "../../assets/images/google-icon.png";
+import { loginUser } from "../../services/api";
 
 function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const user = await loginUser(email, password);
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+      navigate("/");
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   return (
-    <form className="space-y-4">
+    <form className="space-y-4" onSubmit={handleSubmit}>
 
       <div className="flex flex-col space-y-1">
         <label className="text-sm font-poppins font-medium text-[#333333ad] border-[#3a35411f]">
           E-Mail<span className="text-red-500">*</span>
         </label>
-        <InputField type="email" placeholder="" />
+        <InputField
+          type="email"
+          placeholder=""
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
-
 
       <div className="flex flex-col space-y-1 relative">
         <label className="text-sm font-medium text-[#333333ad]">
           Kata Sandi <span className="text-red-500">*</span>
         </label>
 
-
         <div className="relative">
           <InputField
             type="password"
             placeholder=""
-            className="pr-10" 
+            className="pr-10"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <img
             src={LogoImage}
@@ -35,7 +60,6 @@ function LoginForm() {
           />
         </div>
       </div>
-
 
       <div className="flex justify-end">
         <Link
@@ -46,7 +70,7 @@ function LoginForm() {
         </Link>
       </div>
 
-      <Button variant="primary">Masuk</Button>
+      <Button variant="primary" type="submit">Masuk</Button>
       <Button variant="outline">Daftar</Button>
 
       <div className="flex items-center my-6">
@@ -66,4 +90,5 @@ function LoginForm() {
     </form>
   );
 }
+
 export default LoginForm;

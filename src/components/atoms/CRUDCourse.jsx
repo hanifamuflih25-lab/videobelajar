@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import ratingImg from "../../assets/images/Rating.png";
+import {
+  getCourses,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+} from "../../services/api";
 
 function CourseCRUD() {
 
-  const [courses, setCourses] = useState(() => {
-    const saved = localStorage.getItem("courses");
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const [courses, setCourses] = useState([]);
   const [title, setTitle] = useState("");
   const [teacher, setTeacher] = useState("");
   const [job, setJob] = useState("");
@@ -17,72 +19,107 @@ function CourseCRUD() {
   const [profileImg, setProfileImg] = useState("");
   const [editingId, setEditingId] = useState(null);
 
+  // ======================
+  // READ (AXIOS)
+  // ======================
+  const fetchCourses = async () => {
+    try {
+      const data = await getCourses();
+      setCourses(data);
+    } catch (err) {
+      console.log(err.message || "Gagal fetch courses");
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem("courses", JSON.stringify(courses));
-  }, [courses]);
+    fetchCourses();
+  }, []);
+
+  // ======================
+  // IMAGE COMPRESS (UNCHANGED)
+  // ======================
+  const compressImage = (file, callback) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 400;
+        const scaleSize = maxWidth / img.width;
+
+        canvas.width = maxWidth;
+        canvas.height = img.height * scaleSize;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
+        callback(compressedBase64);
+      };
+    };
+
+    reader.readAsDataURL(file);
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
+    if (!file) return;
 
-    reader.onloadend = () => {
-      setImage(reader.result);
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    compressImage(file, setImage);
   };
 
   const handleProfileUpload = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
+    if (!file) return;
 
-    reader.onloadend = () => {
-      setProfileImg(reader.result);
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    compressImage(file, setProfileImg);
   };
 
-  const handleSubmit = (e) => {
+  // ======================
+  // CREATE / UPDATE (AXIOS)
+  // ======================
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (editingId) {
-      const updatedCourses = courses.map((item) =>
-        item.id === editingId
-          ? { ...item, title, teacher, job, price, description, image, profileImg }
-          : item
-      );
+    const payload = {
+      title,
+      teacher,
+      job,
+      price,
+      description,
+      image,
+      profileImg,
+    };
 
-      setCourses(updatedCourses);
-      setEditingId(null);
-    } else {
-      const newCourse = {
-        id: Date.now(),
-        title,
-        teacher,
-        job,
-        price,
-        description,
-        image,
-        profileImg,
-      };
+    try {
+      if (editingId) {
+        await updateCourse(editingId, payload);
+        setEditingId(null);
+      } else {
+        await createCourse(payload);
+      }
 
-      setCourses([...courses, newCourse]);
+      await fetchCourses();
+
+      setTitle("");
+      setTeacher("");
+      setJob("");
+      setPrice("");
+      setDescription("");
+      setImage("");
+      setProfileImg("");
+
+    } catch (err) {
+      console.log(err.message || "Gagal submit course");
     }
-
-    setTitle("");
-    setTeacher("");
-    setJob("");
-    setPrice("");
-    setDescription("");
-    setImage("");
-    setProfileImg("");
   };
 
+  // ======================
+  // EDIT
+  // ======================
   const handleEdit = (course) => {
     setTitle(course.title);
     setTeacher(course.teacher);
@@ -94,9 +131,16 @@ function CourseCRUD() {
     setEditingId(course.id);
   };
 
-  const handleDelete = (id) => {
-    const filtered = courses.filter((item) => item.id !== id);
-    setCourses(filtered);
+  // ======================
+  // DELETE (AXIOS)
+  // ======================
+  const handleDelete = async (id) => {
+    try {
+      await deleteCourse(id);
+      await fetchCourses();
+    } catch (err) {
+      console.log(err.message || "Gagal delete course");
+    }
   };
 
   return (
