@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import LogoImage from "../../assets/images/Vector.png";
 import LogoImages from "../../assets/images/google-icon.png";
 import LogoImagess from "../../assets/images/Indonesia.png";
-import { registerUser } from "../../services/authApi";
+import { useStore } from "../../store/useStore";
 
 function RegisterForm({ onSuccess }) {
 
@@ -17,6 +17,9 @@ function RegisterForm({ onSuccess }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  
+  const register = useStore((state) => state.register);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +40,7 @@ function RegisterForm({ onSuccess }) {
     try {
       setLoading(true);
 
-      await registerUser(payload);
+      await register(payload);
 
       setName("");
       setEmail("");
@@ -48,7 +51,7 @@ function RegisterForm({ onSuccess }) {
       if (onSuccess) onSuccess();
 
     } catch (err) {
-      setError("Gagal register");
+      setError(err.message || "Gagal register");
     } finally {
       setLoading(false);
     }

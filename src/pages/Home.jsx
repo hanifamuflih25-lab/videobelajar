@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import MainLayout from "../components/Layout/mainLayout";
+import CourseCard from "../components/molecules/CourseCard";
+import { useStore } from "../store/useStore";
 import bege from "../assets/images/content-four.jpg";
 import ratingImg from "../assets/images/Rating.png";
 import newsletterBg from "../assets/images/newsletter.jpg";
@@ -16,8 +18,7 @@ import content9 from "../assets/images/content-nine.jpg";
 
 import profile1 from "../assets/images/cowok-abu.png";
 import profile2 from "../assets/images/orang-pink.png";
-import profile3 from "../assets/images/orang-biru.png"; 
-
+import profile3 from "../assets/images/orang-biru.png";
 
 const contents = [
   { id: 1, img: content1, profile: profile1 },
@@ -32,24 +33,26 @@ const contents = [
 ];
 
 function Home() {
+  const coursesFromStore = useStore((state) => state.courses);
+  const fetchCourses = useStore((state) => state.fetchCourses);
 
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    const savedCourses = localStorage.getItem("courses");
-
-    if (savedCourses) {
-      setCourses(JSON.parse(savedCourses));
-    }
+    fetchCourses();
   }, []);
+
+  useEffect(() => {
+    setCourses(coursesFromStore);
+  }, [coursesFromStore]);
 
   return (
     <MainLayout>
 
-
+    
       <div className="w-full max-w-[1300px] mx-auto my-7 px-4">
         <div className="relative rounded-xl overflow-hidden shadow-lg text-white xl:h-[400px]">
-          
+
           <img
             src={bege}
             alt="background"
@@ -76,8 +79,6 @@ function Home() {
         </div>
       </div>
 
-
-
       <div className="mt-5 px-4 md:px-6 xl:px-20 mx-auto">
         <div className="text-left">
           <h1 className="text-xl sm:text-2xl font-semibold text-black mb-2 leading-tight">
@@ -89,44 +90,36 @@ function Home() {
         </div>
 
         <div className="flex gap-8 overflow-x-auto pb-4 h-[52px]">
-          <a
-            href="#"
-            className="relative text-[15.5px] font-medium text-[#f64920] whitespace-nowrap 
-            after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 
-            after:w-[62px] after:h-[4px] after:bg-[#f64920] after:bottom-0"
-          >
+          <a className="relative text-[15.5px] font-medium text-[#f64920] whitespace-nowrap after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:w-[62px] after:h-[4px] after:bg-[#f64920] after:bottom-0">
             Semua kelas
           </a>
 
-          <a href="#" className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
+          <a className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
             Pemasaran
           </a>
 
-          <a href="#" className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
+          <a className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
             Desain
           </a>
 
-          <a href="#" className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
+          <a className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
             Pengembangan Diri
           </a>
 
-          <a href="#" className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
+          <a className="text-[15.5px] font-medium text-gray-800 hover:text-[#f64920] whitespace-nowrap">
             Bisnis
           </a>
         </div>
       </div>
 
-
-
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 py-10 px-4 md:px-6 xl:px-20">
-
 
         {contents.map((item) => (
           <div
             key={item.id}
             className="flex flex-col bg-white border border-gray-200 rounded-xl p-4 w-full max-w-[450px] mx-auto shadow-md transition hover:shadow-lg"
           >
-
             <div className="flex sm:hidden gap-4">
               <img
                 src={item.img}
@@ -185,7 +178,7 @@ function Home() {
 
             <div className="flex justify-between items-center mt-3">
               <div className="flex items-center gap-2">
-                <img src={ratingImg} alt="rating" className="w-[80px] md:w-[90px]" />
+                <img src={ratingImg} className="w-[80px] md:w-[90px]" />
                 <p className="text-xs md:text-sm text-gray-500 underline">
                   3.5 (86)
                 </p>
@@ -194,17 +187,15 @@ function Home() {
                 Rp 300K
               </div>
             </div>
-
           </div>
         ))}
 
-
+       
         {courses.map((item) => (
           <div
             key={item.id}
             className="flex flex-col bg-white border border-gray-200 rounded-xl p-4 w-full max-w-[450px] mx-auto shadow-md transition hover:shadow-lg"
           >
-
             <img
               src={item.image}
               alt="content"
@@ -222,7 +213,6 @@ function Home() {
             <div className="flex items-center gap-3 mt-3">
               <img
                 src={item.profileImg}
-                alt="profile"
                 className="w-9 h-9 rounded-full object-cover"
               />
               <div className="flex flex-col">
@@ -233,7 +223,7 @@ function Home() {
 
             <div className="flex justify-between items-center mt-3">
               <div className="flex items-center gap-2">
-                <img src={ratingImg} alt="rating" className="w-[80px] md:w-[90px]" />
+                <img src={ratingImg} className="w-[80px] md:w-[90px]" />
                 <p className="text-xs md:text-sm text-gray-500 underline">
                   3.5 (86)
                 </p>
@@ -242,20 +232,16 @@ function Home() {
                 {item.price}
               </div>
             </div>
-
           </div>
         ))}
-
       </div>
 
-
-  
+    
       <div className="w-full max-w-7xl mx-auto my-14 px-4">
         <div className="relative rounded-xl overflow-hidden shadow-lg text-white">
 
           <img
             src={newsletterBg}
-            alt="background"
             className="absolute w-full h-full object-cover top-0 left-0 brightness-[0.2]"
           />
 
@@ -277,13 +263,12 @@ function Home() {
               <input
                 type="email"
                 placeholder="Masukkan Emailmu"
-                className="flex-1 px-4 py-3 text-gray-900 font-poppins text-sm focus:outline-none"
+                className="flex-1 px-4 py-3 text-gray-900 font-poppins text-sm"
               />
               <button className="bg-yellow-400 hover:bg-yellow-500 text-white font-medium text-sm px-5 py-3 transition">
                 Subscribe
               </button>
             </div>
-
           </div>
 
         </div>

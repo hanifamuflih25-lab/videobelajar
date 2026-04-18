@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import ratingImg from "../../assets/images/Rating.png";
-import {
-  getCourses,
-  createCourse,
-  updateCourse,
-  deleteCourse,
-} from "../../services/api";
+import { useStore } from "../../store/useStore";
+import CourseCard from "../molecules/CourseCard";
 
 function CourseCRUD() {
 
-  const [courses, setCourses] = useState([]);
+  const courses = useStore((state) => state.courses);
+  const fetchCourses = useStore((state) => state.fetchCourses);
+  const addCourse = useStore((state) => state.addCourse);
+  const editCourse = useStore((state) => state.editCourse);
+  const removeCourse = useStore((state) => state.removeCourse);
+
+  
   const [title, setTitle] = useState("");
   const [teacher, setTeacher] = useState("");
   const [job, setJob] = useState("");
@@ -19,20 +21,12 @@ function CourseCRUD() {
   const [profileImg, setProfileImg] = useState("");
   const [editingId, setEditingId] = useState(null);
 
- 
-  const fetchCourses = async () => {
-    try {
-      const data = await getCourses();
-      setCourses(data);
-    } catch (err) {
-      console.log(err.message || "Gagal fetch courses");
-    }
-  };
-
+  
   useEffect(() => {
     fetchCourses();
   }, []);
 
+ 
   const compressImage = (file, callback) => {
     const reader = new FileReader();
 
@@ -62,14 +56,12 @@ function CourseCRUD() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     compressImage(file, setImage);
   };
 
   const handleProfileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     compressImage(file, setProfileImg);
   };
 
@@ -89,13 +81,11 @@ function CourseCRUD() {
 
     try {
       if (editingId) {
-        await updateCourse(editingId, payload);
+        await editCourse(editingId, payload);
         setEditingId(null);
       } else {
-        await createCourse(payload);
+        await addCourse(payload);
       }
-
-      await fetchCourses();
 
       setTitle("");
       setTeacher("");
@@ -110,7 +100,7 @@ function CourseCRUD() {
     }
   };
 
-
+ 
   const handleEdit = (course) => {
     setTitle(course.title);
     setTeacher(course.teacher);
@@ -122,10 +112,10 @@ function CourseCRUD() {
     setEditingId(course.id);
   };
 
+  
   const handleDelete = async (id) => {
     try {
-      await deleteCourse(id);
-      await fetchCourses();
+      await removeCourse(id);
     } catch (err) {
       console.log(err.message || "Gagal delete course");
     }
@@ -138,6 +128,7 @@ function CourseCRUD() {
         Admin Manager
       </h1>
 
+     
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded-xl p-6 mb-10 grid md:grid-cols-2 gap-4"
@@ -233,6 +224,7 @@ function CourseCRUD() {
 
       </form>
 
+    
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
         {courses.map((item) => (
@@ -241,60 +233,83 @@ function CourseCRUD() {
             className="flex flex-col bg-white border border-gray-200 rounded-xl p-4 w-full max-w-[450px] mx-auto shadow-md transition hover:shadow-lg"
           >
 
-            {item.image && (
+            <div className="flex sm:hidden gap-4">
               <img
                 src={item.image}
-                alt="course"
+                alt="content"
+                className="w-[100px] h-[100px] rounded-lg object-cover flex-shrink-0"
+              />
+
+              <div className="flex flex-col justify-center gap-2 flex-1">
+                <p className="text-base font-bold font-poppins text-gray-900 line-clamp-2">
+                  {item.title}
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <img
+                    src={item.profileImg}
+                    alt="profile"
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {item.teacher}
+                    </span>
+                    <p className="text-[11px] text-gray-500">
+                      {item.job}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="hidden sm:flex flex-col gap-3">
+              <img
+                src={item.image}
+                alt="content"
                 className="w-full h-[180px] rounded-lg object-cover"
               />
-            )}
 
-            <p className="text-lg font-bold font-poppins text-gray-900 mt-3">
-              {item.title}
-            </p>
+              <p className="text-lg font-bold font-poppins text-gray-900">
+                {item.title}
+              </p>
 
-            <p className="text-sm font-poppins text-[#333333] line-clamp-2">
-              {item.description}
-            </p>
+              <p className="text-sm font-poppins text-[#333333] line-clamp-2">
+                {item.description}
+              </p>
 
-            <div className="flex items-center gap-3 mt-3">
-
-              {item.profileImg ? (
+              <div className="flex items-center gap-3">
                 <img
                   src={item.profileImg}
                   alt="profile"
                   className="w-9 h-9 rounded-full object-cover"
                 />
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">
-                  {item.teacher.charAt(0)}
+                <div className="flex flex-col">
+                  <span className="text-base font-medium">
+                    {item.teacher}
+                  </span>
+                  <p className="text-sm text-gray-500">
+                    {item.job}
+                  </p>
                 </div>
-              )}
-
-              <div className="flex flex-col">
-                <span className="text-base font-medium">
-                  {item.teacher}
-                </span>
-                <p className="text-sm text-gray-500">
-                  {item.job}
-                </p>
               </div>
-
             </div>
 
+            
             <div className="flex justify-between items-center mt-3">
               <div className="flex items-center gap-2">
-                <img src={ratingImg} alt="rating" className="w-[90px]" />
-                <p className="text-xs text-gray-500 underline">
+                <img src={ratingImg} alt="rating" className="w-[80px] md:w-[90px]" />
+                <p className="text-xs md:text-sm text-gray-500 underline">
                   3.5 (86)
                 </p>
               </div>
 
-              <div className="text-base font-bold text-green-500">
+              <div className="text-base md:text-lg font-bold text-green-500">
                 {item.price}
               </div>
             </div>
 
+            
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => handleEdit(item)}

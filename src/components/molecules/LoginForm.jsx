@@ -4,21 +4,23 @@ import Button from "../atoms/Button";
 import { Link, useNavigate } from "react-router-dom";
 import LogoImage from "../../assets/images/Vector.png";
 import LogoImages from "../../assets/images/google-icon.png";
-import { loginUser } from "../../services/api";
+import { useStore } from "../../store/useStore";
 
 function LoginForm() {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
+
+ 
+  const login = useStore((state) => state.login);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const user = await loginUser(email, password);
-
-      localStorage.setItem("user", JSON.stringify(user));
-
+      await login(email, password);
       navigate("/");
     } catch (err) {
       alert(err.message);

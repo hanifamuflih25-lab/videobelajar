@@ -1,5 +1,6 @@
 import api from "./axios";
 
+
 export const getCourses = async () => {
   const res = await api.get("/courses");
   return res.data;
@@ -19,6 +20,7 @@ export const deleteCourse = async (id) => {
   await api.delete(`/courses/${id}`);
   return true;
 };
+
 export const registerUser = async (data) => {
   const res = await api.post("/users", data);
   return res.data;
