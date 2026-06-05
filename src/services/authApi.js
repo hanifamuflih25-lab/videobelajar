@@ -25,4 +25,4 @@ export const loginUser = async (email, password) => {
   } catch (error) {
     throw new Error(error.message || "Gagal fetch user");
   }
-};
+}; 

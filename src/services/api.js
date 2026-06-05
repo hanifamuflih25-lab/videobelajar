@@ -34,4 +34,5 @@ export const loginUser = async (email, password) => {
   }
 
   return res.data[0];
-};
+}; 
+

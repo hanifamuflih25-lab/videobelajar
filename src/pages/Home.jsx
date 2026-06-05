@@ -38,13 +38,22 @@ function Home() {
 
   const [courses, setCourses] = useState([]);
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
+useEffect(() => {
+  fetchCourses();
+}, []);
 
-  useEffect(() => {
+useEffect(() => {
+  if (Array.isArray(coursesFromStore)) {
     setCourses(coursesFromStore);
-  }, [coursesFromStore]);
+  } else if (
+    coursesFromStore &&
+    Array.isArray(coursesFromStore.data)
+  ) {
+    setCourses(coursesFromStore.data);
+  } else {
+    setCourses([]);
+  }
+}, [coursesFromStore]);
 
   return (
     <MainLayout>

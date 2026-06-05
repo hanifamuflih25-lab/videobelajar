@@ -6,10 +6,16 @@ import CourseCard from "../molecules/CourseCard";
 function CourseCRUD() {
 
   const courses = useStore((state) => state.courses);
-  const fetchCourses = useStore((state) => state.fetchCourses);
-  const addCourse = useStore((state) => state.addCourse);
-  const editCourse = useStore((state) => state.editCourse);
-  const removeCourse = useStore((state) => state.removeCourse);
+const fetchCourses = useStore((state) => state.fetchCourses);
+const addCourse = useStore((state) => state.addCourse);
+const editCourse = useStore((state) => state.editCourse);
+const removeCourse = useStore((state) => state.removeCourse);
+
+const safeCourses = Array.isArray(courses)
+  ? courses
+  : Array.isArray(courses?.data)
+  ? courses.data
+  : [];
 
   
   const [title, setTitle] = useState("");
@@ -21,12 +27,12 @@ function CourseCRUD() {
   const [profileImg, setProfileImg] = useState("");
   const [editingId, setEditingId] = useState(null);
 
-  
+
   useEffect(() => {
     fetchCourses();
   }, []);
 
- 
+
   const compressImage = (file, callback) => {
     const reader = new FileReader();
 
@@ -227,7 +233,7 @@ function CourseCRUD() {
     
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
-        {courses.map((item) => (
+        {safeCourses.map((item) => (
           <div
             key={item.id}
             className="flex flex-col bg-white border border-gray-200 rounded-xl p-4 w-full max-w-[450px] mx-auto shadow-md transition hover:shadow-lg"
